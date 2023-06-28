@@ -6,7 +6,7 @@
 /*   By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 17:35:40 by snocita           #+#    #+#             */
-/*   Updated: 2023/06/28 20:39:36 by amurawsk         ###   ########.fr       */
+/*   Updated: 2023/06/28 22:52:57 by amurawsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ int	init_mutex(t_gen *gen)
 		return (1);
 	if (pthread_mutex_init(&(gen->table->meal_check), NULL))
 		return (1);
+	if (pthread_mutex_init(&(gen->table->mutex_all_ate), NULL))
+		return(1);
 	return (0);
 }
 
@@ -86,15 +88,4 @@ int	catalysis(t_gen *gen, char **av)
 		return (2);
 	init_philosophers(gen);
 	return (0);
-}
-
-unsigned long	get_timestamp(void)
-{
-	struct timeval	current_time;
-	unsigned long	milliseconds;
-
-	gettimeofday(&current_time, NULL);
-	milliseconds = (unsigned long)(current_time.tv_sec)*1000
-		+ (unsigned long)(current_time.tv_usec) / 1000;
-	return (milliseconds);
 }

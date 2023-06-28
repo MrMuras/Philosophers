@@ -6,7 +6,7 @@
 /*   By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:36:16 by snocita           #+#    #+#             */
-/*   Updated: 2023/06/28 20:42:15 by amurawsk         ###   ########.fr       */
+/*   Updated: 2023/06/28 22:56:34 by amurawsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,10 @@ void	*p_thread(void *void_philosopher)
 	while (!(gen->table->died))
 	{
 		philo_eats(philo);
+		pthread_mutex_lock(&philo->gen->table->mutex_all_ate);
 		if (gen->table->all_ate)
 			break ;
+		pthread_mutex_unlock(&philo->gen->table->mutex_all_ate);
 		print_status(gen, philo->id, 3);
 		ft_usleep(gen->table->t_sleep);
 		print_status(gen, philo->id, 4);
@@ -83,8 +85,10 @@ void	death_checker(t_gen *r, t_phil *p)
 			&& p[i].x_ate >= r->table->repas)
 			i++;
 		pthread_mutex_unlock(&(r->table->x_ate_mutex[p->id]));
+		pthread_mutex_lock(&p->gen->table->mutex_all_ate);
 		if (i == r->table->members)
 			r->table->all_ate = 1;
+		pthread_mutex_unlock(&p->gen->table->mutex_all_ate);
 	}
 }
 
@@ -102,6 +106,7 @@ void	exit_starter(t_gen *gen, t_phil *philos)
 	while (++i < gen->table->members)
 		pthread_mutex_destroy(&(gen->table->x_ate_mutex[i]));
 	pthread_mutex_destroy(&(gen->table->writing));
+	pthread_mutex_destroy(&(gen->table->mutex_all_ate));
 }
 
 int	starter(t_gen *gen)

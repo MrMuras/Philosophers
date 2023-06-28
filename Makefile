@@ -6,14 +6,14 @@
 #    By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/04 08:22:06 by jergashe          #+#    #+#              #
-#    Updated: 2023/06/28 21:41:38 by amurawsk         ###   ########.fr        #
+#    Updated: 2023/06/28 22:57:13 by amurawsk         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 CC = cc
 RM = rm -rf
-CFLAGS = -Wall -Wextra -Werror -g -fsanitize=thread
+CFLAGS = -Wall -Wextra -Werror -g #-fsanitize=thread
 
 
 SRC_DIR = src/

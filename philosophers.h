@@ -6,7 +6,7 @@
 /*   By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/14 13:22:03 by snocita           #+#    #+#             */
-/*   Updated: 2023/06/28 19:05:51 by amurawsk         ###   ########.fr       */
+/*   Updated: 2023/06/28 22:52:04 by amurawsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,11 @@ typedef struct s_table
 	int				t_sleep;
 	int				died;
 	long long		first_timestamp;
-	pthread_mutex_t	forks[250];
 	t_phil			philosophers[250];
+	pthread_mutex_t	forks[250];
 	pthread_mutex_t	x_ate_mutex[250];
 	pthread_mutex_t	meal_check;
+	pthread_mutex_t	mutex_all_ate;
 	pthread_mutex_t	writing;
 }	t_table;
 
@@ -63,11 +64,9 @@ typedef struct s_gen
 
 void			msg_err(char *str);
 void			msg(char *str);
-void			parsing(char *av, int ac, t_gen *gen);
 int				ft_atoi(char *str);
 int				catalysis(t_gen *gen, char **av);
 unsigned long	get_timestamp(void);
-void			start_table(t_gen	*gen);
 void			print_status(t_gen *gen, int id, int strnum);
 int				init_mutex(t_gen *gen);
 int				error_manager(int error);
