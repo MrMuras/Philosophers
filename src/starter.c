@@ -6,7 +6,7 @@
 /*   By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 13:36:16 by snocita           #+#    #+#             */
-/*   Updated: 2023/06/28 22:56:34 by amurawsk         ###   ########.fr       */
+/*   Updated: 2023/06/29 20:16:48 by amurawsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ void	philo_eats(t_phil	*philo)
 	print_status(gen, philo->id, 2);
 	philo->t_last_meal = get_timestamp();
 	pthread_mutex_unlock(&(gen->table->meal_check));
-	ft_usleep(gen->table->t_eat);
-	pthread_mutex_lock(&(gen->table->x_ate_mutex[philo->id]));
+	smart_sleep(gen->table->t_eat, gen);
+	pthread_mutex_lock(&(gen->table->meal_check));
 	(philo->x_ate)++;
-	pthread_mutex_unlock(&(gen->table->x_ate_mutex[philo->id]));
+	pthread_mutex_unlock(&(gen->table->meal_check));
 	pthread_mutex_unlock(&(gen->table->forks[philo->left_fork_id]));
 	pthread_mutex_unlock(&(gen->table->forks[philo->right_fork_id]));
 }
@@ -42,17 +42,20 @@ void	*p_thread(void *void_philosopher)
 	i = 0;
 	philo = (t_phil *)void_philosopher;
 	gen = philo->gen;
-	if (philo->id % 2 == 1)
-		usleep(gen->table->t_eat/2);
+	if (philo->id % 2)
+		usleep(15000);
 	while (!(gen->table->died))
 	{
 		philo_eats(philo);
-		pthread_mutex_lock(&philo->gen->table->mutex_all_ate);
+		pthread_mutex_lock(&(gen->table->meal_check));
 		if (gen->table->all_ate)
+		{
+			pthread_mutex_unlock(&(gen->table->meal_check));
 			break ;
-		pthread_mutex_unlock(&philo->gen->table->mutex_all_ate);
+		}
+		pthread_mutex_unlock(&(gen->table->meal_check));
 		print_status(gen, philo->id, 3);
-		ft_usleep(gen->table->t_sleep);
+		smart_sleep(gen->table->t_sleep, gen);
 		print_status(gen, philo->id, 4);
 		i++;
 	}
@@ -77,18 +80,16 @@ void	death_checker(t_gen *r, t_phil *p)
 			pthread_mutex_unlock(&(r->table->meal_check));
 			usleep(100);
 		}
-		if (r->table->died)
+		if (r->table->died == 1)
 			break ;
 		i = 0;
-		pthread_mutex_lock(&(r->table->x_ate_mutex[p->id]));
+		pthread_mutex_lock(&(r->table->meal_check));
 		while (r->table->repas != -1 && i < r->table->members
 			&& p[i].x_ate >= r->table->repas)
 			i++;
-		pthread_mutex_unlock(&(r->table->x_ate_mutex[p->id]));
-		pthread_mutex_lock(&p->gen->table->mutex_all_ate);
 		if (i == r->table->members)
 			r->table->all_ate = 1;
-		pthread_mutex_unlock(&p->gen->table->mutex_all_ate);
+		pthread_mutex_unlock(&(r->table->meal_check));
 	}
 }
 
@@ -102,11 +103,7 @@ void	exit_starter(t_gen *gen, t_phil *philos)
 	i = -1;
 	while (++i < gen->table->members)
 		pthread_mutex_destroy(&(gen->table->forks[i]));
-	i = -1;
-	while (++i < gen->table->members)
-		pthread_mutex_destroy(&(gen->table->x_ate_mutex[i]));
 	pthread_mutex_destroy(&(gen->table->writing));
-	pthread_mutex_destroy(&(gen->table->mutex_all_ate));
 }
 
 int	starter(t_gen *gen)
@@ -121,8 +118,9 @@ int	starter(t_gen *gen)
 	{
 		if (pthread_create(&(phil[i].thread_id), NULL, p_thread, &(phil[i])))
 			return (1);
-		ft_usleep(50);
+		pthread_mutex_lock(&(gen->table->meal_check));
 		phil[i].t_last_meal = get_timestamp();
+		pthread_mutex_unlock(&(gen->table->meal_check));
 		i++;
 	}
 	death_checker(gen, gen->table->philosophers);

@@ -6,7 +6,7 @@
 /*   By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/05 14:43:59 by snocita           #+#    #+#             */
-/*   Updated: 2023/06/28 22:18:21 by amurawsk         ###   ########.fr       */
+/*   Updated: 2023/06/29 20:21:31 by amurawsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,31 +17,22 @@ long long	time_diff(long long past, long long pres)
 	return (pres - past);
 }
 
-void	ft_usleep(uint64_t sleep_time)
+void	smart_sleep(long long time, t_gen	*gen)
 {
-	u_int64_t	start;
+	long long	i;
 
-	start = get_time();
-	while ((get_time() - start) < sleep_time)
+	i = get_timestamp();
+	while (!(gen->table->died))
+	{
+		if (time_diff(i, get_timestamp()) >= time)
+			break ;
 		usleep(50);
+	}
 }
 
-u_int64_t	get_time(void)
+void	my_free(t_gen *gen)
 {
-	struct timeval	tv;
-
-	if (gettimeofday(&tv, NULL))
-		return (0);
-	return ((tv.tv_sec * (u_int64_t)1000) + (tv.tv_usec / 1000));
-}
-
-unsigned long	get_timestamp(void)
-{
-	struct timeval	current_time;
-	unsigned long	milliseconds;
-
-	gettimeofday(&current_time, NULL);
-	milliseconds = (unsigned long)(current_time.tv_sec)*1000
-		+ (unsigned long)(current_time.tv_usec) / 1000;
-	return (milliseconds);
+	free(gen->phil);
+	free(gen->table);
+	free(gen);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: snocita <snocita@student.42wolfsburg.de>   +#+  +:+       +#+        */
+/*   By: amurawsk <amurawsk@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/22 15:43:36 by snocita           #+#    #+#             */
-/*   Updated: 2023/05/05 15:12:17 by snocita          ###   ########.fr       */
+/*   Updated: 2023/06/29 20:24:09 by amurawsk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,15 @@ int	main(int ac, char **av)
 		msg_err("Faulty amount of arguments.\n\tMinimum accepted: 5");
 	ret = catalysis(gen, av);
 	if (ret)
+	{
+		my_free(gen);
 		return (error_manager(ret));
+	}
 	if (starter(gen))
+	{
+		my_free(gen);
 		msg_err("Error generated while creating threads");
+	}
+	my_free(gen);
 	return (0);
 }
